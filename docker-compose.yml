@@ -1,0 +1,40 @@
+version: '2.1'
+volumes:
+  mysql:
+    driver: local
+  reviewboard:
+    driver: local
+services:
+  reviewboard:
+    build: ./
+    image: bkmeneguello/reviewboard
+    volumes:
+    - reviewboard:/var/www
+    links:
+    - memcached
+    - mysql
+    ports:
+    - "${RB_PORT:-8000}:80"
+    environment:
+    - RB_DOMAIN
+    - RB_ROOT
+    - RB_STATIC_URL
+    - RB_MEDIA_URL
+    - RB_ADMIN_USER
+    - RB_ADMIN_PASS
+    - RB_ADMIN_MAIL
+    - DB_NAME
+    - DB_USER
+    - DB_PASS
+  memcached:
+    image: memcached:alpine
+  mysql:
+    image: mariadb
+    volumes:
+    - mysql:/var/lib/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+    - MYSQL_DATABASE=${DB_NAME:-reviewboard}
+    - MYSQL_USER=${DB_USER:-reviewboard}
+    - MYSQL_PASSWORD=${DB_PASS:-reviewboard}
+
